@@ -36,6 +36,6 @@ void delay_us(uint32_t us)
 
 void delay_ms(uint32_t ms)
 {
-  //HAL_Delay(ms);
+  nrf_drv_systick_delay_ms(ms);
 }
 

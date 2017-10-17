@@ -6,7 +6,7 @@
  */
 #include "hw.h"
 #include "led.h"
-
+#include "nrf_gpio.h"
 
 
 typedef struct
@@ -17,7 +17,7 @@ typedef struct
 
 led_port_t led_port_tbl[LED_CH_MAX] =
 {
-    0,
+    {17}
 };
 
 
@@ -34,6 +34,7 @@ void ledInit(void)
 
   for (i=0; i<LED_CH_MAX; i++)
   {
+    nrf_gpio_cfg_output(led_port_tbl[i].pin_number);
     ledOff(i);
   }
 
@@ -44,16 +45,21 @@ void ledInit(void)
 void ledOn(uint8_t ch)
 {
   if (ch >= LED_CH_MAX) return;
+
+  nrf_gpio_pin_write(led_port_tbl[ch].pin_number, 0);
 }
 
 void ledOff(uint8_t ch)
 {
   if (ch >= LED_CH_MAX) return;
+  nrf_gpio_pin_write(led_port_tbl[ch].pin_number, 1);
 }
 
 void ledToggle(uint8_t ch)
 {
   if (ch >= LED_CH_MAX) return;
+
+  nrf_gpio_pin_toggle(led_port_tbl[ch].pin_number);
 }
 
 

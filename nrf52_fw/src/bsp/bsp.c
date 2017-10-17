@@ -13,7 +13,7 @@
 void bspInit(void)
 {
 
-
+  nrf_drv_systick_init();
 
 }
 

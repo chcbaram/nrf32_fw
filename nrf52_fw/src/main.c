@@ -25,8 +25,13 @@ int main(void)
   mainInit();
 
 
+
   while(1)
   {
+    ledToggle(0);
+    delay(500);
+    ledToggle(0);
+    delay(500);
   }
 
   return 0;
