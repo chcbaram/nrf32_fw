@@ -20,8 +20,14 @@
 
 
 
-#define delay(x)  delay_ms(x)
 
+
+
+void delayInit(void);
+void delay(uint32_t ms);
+
+uint32_t millis();
+uint32_t micros();
 
 
 void delay_ns(uint32_t ns);

@@ -30,12 +30,9 @@ typedef struct
 
    struct
    {
-     UART_HandleTypeDef h_uart;
-     USART_TypeDef     *h_uart_inst;
-     DMA_HandleTypeDef  hdma_rx;
+     NRF_UART_Type     *h_uart;
+
      ring_buf_t         rx_buf;
-     bool               dma_enable;
-     bool               vcp_enable;
    } hw;
 
  } uart_t;

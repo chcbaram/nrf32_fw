@@ -14,20 +14,20 @@
 
 void hwInit(void)
 {
-  //cmdifInit();
+  cmdifInit();
+  delayInit();
   swtimerInit();
-  //hwtimerInit();
+  hwtimerInit();
   ledInit();
-  microsInit();
-  //uartInit();
-  //buttonInit();
-  //flashInit();
+  uartInit();
+  buttonInit();
+  flashInit();
 
   // 1ms for swtimer
   //
-  //hwtimerSetPeriod(_HW_DEF_SWTIMER_CH, 1000);
-  //hwtimerAttachInterrupt(_HW_DEF_SWTIMER_CH, swtimerISR);
-  //hwtimerStart(_HW_DEF_SWTIMER_CH);
+  hwtimerSetPeriod(_HW_DEF_SWTIMER_CH, 1000);
+  hwtimerAttachInterrupt(_HW_DEF_SWTIMER_CH, swtimerISR);
+  hwtimerStart(_HW_DEF_SWTIMER_CH);
 }
 
 

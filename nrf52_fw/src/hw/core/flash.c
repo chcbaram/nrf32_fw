@@ -6,7 +6,7 @@
  */
 #include "hw.h"
 #include "flash.h"
-
+#include "nrf_nvmc.h"
 
 
 typedef struct
@@ -24,7 +24,7 @@ typedef struct
 
 
 uint32_t            flash_page_total = 128;
-uint32_t            flash_page_size  = FLASH_PAGE_SIZE;
+uint32_t            flash_page_size  = 0x1000;
 flash_page_attr_t   flash_page_attr[128];
 
 
@@ -43,7 +43,7 @@ bool flashInit(void)
   uint32_t addr;
 
 
-  addr = 0x08000000;
+  addr = 0x00000000;
   for (i=0; i<flash_page_total; i++)
   {
     flash_page_attr[i].addr   = addr;
@@ -60,47 +60,9 @@ bool flashInit(void)
 err_code_t flashWrite(uint32_t addr, uint8_t *p_data, uint32_t length)
 {
   err_code_t err_code = OK;
-  HAL_StatusTypeDef HAL_FLASHStatus = HAL_OK;
-  uint32_t StartAddress = addr;
-  uint32_t WriteSize;
-  //uint64_t WriteData;
-  uint32_t i;
-  uint32_t DataIndex;
-  flash_data_t f_data;
-  uint64_t *p_fdata;
 
 
-  p_fdata = (uint64_t *)&f_data.l;
-
-  WriteSize = length / 8; // 32Bit
-
-  if( (length%8) > 0 ) WriteSize++;
-
-  DataIndex = 0;
-  HAL_FLASH_Unlock();
-  for( i=0; i<WriteSize; i++ )
-  {
-    f_data.l  = p_data[ DataIndex++ ] << 0;
-    f_data.l |= p_data[ DataIndex++ ] << 8;
-    f_data.l |= p_data[ DataIndex++ ] << 16;
-    f_data.l |= p_data[ DataIndex++ ] << 24;
-
-    f_data.h |= p_data[ DataIndex++ ] << 0;
-    f_data.h |= p_data[ DataIndex++ ] << 8;
-    f_data.h |= p_data[ DataIndex++ ] << 16;
-    f_data.h |= p_data[ DataIndex++ ] << 24;
-
-
-
-    HAL_FLASHStatus = HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, StartAddress+i*8, *p_fdata);
-
-    if( HAL_FLASHStatus != HAL_OK )
-    {
-        err_code = ERR_FLASH_WRITE;
-      break;
-    }
-  }
-  HAL_FLASH_Lock();
+  nrf_nvmc_write_bytes(addr, p_data, length);
 
   return err_code;
 }
@@ -144,11 +106,11 @@ err_code_t flashErase(uint32_t addr, uint32_t length)
 
     if ((addr_begin >= target_addr_begin) && (addr_begin <= target_addr_end))
     {
-      err_code = flashEraseSector(i);
+      err_code = flashEraseSector(addr_begin);
     }
     else if((addr_end >= target_addr_begin) && (addr_end <= target_addr_end) )
     {
-      err_code = flashEraseSector(i);
+      err_code = flashEraseSector(addr_begin);
     }
   }
 
@@ -159,54 +121,13 @@ err_code_t flashErase(uint32_t addr, uint32_t length)
 err_code_t flashEraseSector(uint32_t sector)
 {
   err_code_t err_code = OK;
-  HAL_StatusTypeDef HAL_FLASHStatus = HAL_OK;
-  FLASH_EraseInitTypeDef pEraseInit;
-  uint32_t SectorError;
 
-  pEraseInit.TypeErase    = FLASH_TYPEERASE_PAGES;
-  pEraseInit.Banks        = FLASH_BANK_1;
-  pEraseInit.Page         = sector;
-  pEraseInit.NbPages      = 1;
 
-  HAL_FLASH_Unlock();
-
-  HAL_FLASHStatus = HAL_FLASHEx_Erase(&pEraseInit, &SectorError);
-  if(HAL_FLASHStatus != HAL_OK)
-  {
-    err_code = ERR_FLASH_ERASE;
-  }
-
-  HAL_FLASH_Lock();
+  nrf_nvmc_page_erase(sector);
 
   return err_code;
 }
 
-err_code_t flashEraseSectors(uint32_t start_sector, uint32_t sector_cnt )
-{
-
-  err_code_t err_code = OK;
-  HAL_StatusTypeDef HAL_FLASHStatus = HAL_OK;
-  FLASH_EraseInitTypeDef pEraseInit;
-  uint32_t SectorError;
-
-
-  pEraseInit.TypeErase    = FLASH_TYPEERASE_PAGES;
-  pEraseInit.Banks        = FLASH_BANK_1;
-  pEraseInit.Page         = start_sector;
-  pEraseInit.NbPages      = sector_cnt;
-
-  HAL_FLASH_Unlock();
-
-  HAL_FLASHStatus = HAL_FLASHEx_Erase(&pEraseInit, &SectorError);
-  if(HAL_FLASHStatus != HAL_OK)
-  {
-    err_code = ERR_FLASH_ERASE;
-  }
-
-  HAL_FLASH_Lock();
-
-  return err_code;
-}
 
 
 //-- flashCmdif

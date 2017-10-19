@@ -8,9 +8,11 @@
 #ifndef SRC_BSP_BSP_H_
 #define SRC_BSP_BSP_H_
 
-
+#include <stdio.h>
 #include <stdbool.h>
 
+#include "nrf.h"
+#include "nrf52.h"
 #include "nrf_drv_systick.h"
 
 

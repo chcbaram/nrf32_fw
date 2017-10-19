@@ -6,29 +6,28 @@
  */
 /*
   _HW_DEF_UART_CH_MAX : 2
-  _DEF_UART1          : VCP
-  _DEF_UART2          : USART2
+  _DEF_UART1          : UART0
+  _DEF_UART2          :
 */
 /*
-  USART2
-    - RX : PD6, DMA1, Channel 4, Stream 5
-    - TX : PD5, DMA1, Channel 4, Stream 6
-
-
-  USART8
-    - RX : PE0, DMA1, Channel 5, Stream 6
-    - TX : PE1, DMA1, Channel 5, Stream 0
+  USART0
+    - RX : 8
+    - TX : 6
 */
 
 
 #include <stdarg.h>
 #include <stdbool.h>
 #include "hw.h"
-
+#include "nrf52.h"
 
 
 #include "uart.h"
 
+
+
+#define PIN_SERIAL_RX         8
+#define PIN_SERIAL_TX         6
 
 
 #define UART_RX_BUF_LENGTH    64
@@ -38,7 +37,8 @@
 //-- Internal Variables
 //
 uart_t  uart_tbl[_HW_DEF_UART_CH_MAX];
-uint8_t uart_buffer[2][UART_RX_BUF_LENGTH] __attribute__((section(".NoneCacheableMem")));
+volatile uint8_t uart_buffer[_HW_DEF_UART_CH_MAX][UART_RX_BUF_LENGTH];
+
 
 
 //-- External Variables
@@ -48,8 +48,8 @@ uint8_t uart_buffer[2][UART_RX_BUF_LENGTH] __attribute__((section(".NoneCacheabl
 //-- Internal Functions
 //
 static bool uartIsEnable(uint8_t channel);
-void uartStartRx(uint8_t channel);
 
+static uint32_t uartGetNrfBaud(uint32_t baudrate);
 
 //-- External Functions
 //
@@ -72,8 +72,6 @@ bool uartInit(void)
     uart_tbl[i].hw.rx_buf.ptr_in  = 0;
     uart_tbl[i].hw.rx_buf.ptr_out = 0;
     uart_tbl[i].hw.rx_buf.p_buf   = NULL;
-    uart_tbl[i].hw.vcp_enable     = false;
-    uart_tbl[i].hw.dma_enable     = false;
   }
 
 
@@ -98,40 +96,84 @@ uint32_t uartOpen(uint8_t channel, uint32_t baud)
     case _DEF_UART1:
 
       p_drv_uart->baud           = baud;
-      p_drv_uart->hw.h_uart_inst = USART2;
-      p_drv_uart->hw.dma_enable  = true;
-      p_drv_uart->hw.vcp_enable  = false;
+      p_drv_uart->hw.h_uart      = NRF_UART0;
 
       p_drv_uart->hw.rx_buf.ptr_in  = 0;
       p_drv_uart->hw.rx_buf.ptr_out = 0;
-      p_drv_uart->hw.rx_buf.p_buf   = (uint8_t *)uart_buffer[0];
+      p_drv_uart->hw.rx_buf.p_buf   = (uint8_t *)uart_buffer[_DEF_UART1];
       p_drv_uart->hw.rx_buf.length  = UART_RX_BUF_LENGTH;
 
-      p_drv_uart->hw.h_uart.Instance        = p_drv_uart->hw.h_uart_inst;
-      p_drv_uart->hw.h_uart.Init.BaudRate   = baud;
-      p_drv_uart->hw.h_uart.Init.WordLength = UART_WORDLENGTH_8B;
-      p_drv_uart->hw.h_uart.Init.StopBits   = UART_STOPBITS_1;
-      p_drv_uart->hw.h_uart.Init.Parity     = UART_PARITY_NONE;
-      p_drv_uart->hw.h_uart.Init.HwFlowCtl  = UART_HWCONTROL_NONE;
-      p_drv_uart->hw.h_uart.Init.Mode       = UART_MODE_TX_RX;
 
-      HAL_UART_DeInit(&p_drv_uart->hw.h_uart);
-      HAL_UART_Init(&p_drv_uart->hw.h_uart);
+      p_drv_uart->hw.h_uart->PSELTXD = 6;
+      p_drv_uart->hw.h_uart->PSELRXD = 8;
 
+      p_drv_uart->hw.h_uart->CONFIG = (UART_CONFIG_PARITY_Excluded << UART_CONFIG_PARITY_Pos) | UART_CONFIG_HWFC_Disabled;
 
+      p_drv_uart->hw.h_uart->BAUDRATE = uartGetNrfBaud(baud);
+
+      p_drv_uart->hw.h_uart->ENABLE = UART_ENABLE_ENABLE_Enabled;
+
+      p_drv_uart->hw.h_uart->EVENTS_RXDRDY = 0x0UL;
+      p_drv_uart->hw.h_uart->EVENTS_TXDRDY = 0x0UL;
+
+      p_drv_uart->hw.h_uart->TASKS_STARTRX = 0x1UL;
+      p_drv_uart->hw.h_uart->TASKS_STARTTX = 0x1UL;
+
+      p_drv_uart->hw.h_uart->INTENSET = UART_INTENSET_RXDRDY_Msk;
+
+      NVIC_ClearPendingIRQ(UARTE0_UART0_IRQn);
+      NVIC_SetPriority(UARTE0_UART0_IRQn, 3);
+      NVIC_EnableIRQ(UARTE0_UART0_IRQn);
 
       p_drv_uart->is_open = true;
-
-
-      uartStartRx(channel);
       break;
   }
 
 
-
-
-
   return err_code;
+}
+
+uint32_t uartGetNrfBaud(uint32_t baudrate)
+{
+  uint32_t nrfBaudRate;
+
+
+  if (baudrate <= 1200) {
+    nrfBaudRate = UARTE_BAUDRATE_BAUDRATE_Baud1200;
+  } else if (baudrate <= 2400) {
+    nrfBaudRate = UARTE_BAUDRATE_BAUDRATE_Baud2400;
+  } else if (baudrate <= 4800) {
+    nrfBaudRate = UARTE_BAUDRATE_BAUDRATE_Baud4800;
+  } else if (baudrate <= 9600) {
+    nrfBaudRate = UARTE_BAUDRATE_BAUDRATE_Baud9600;
+  } else if (baudrate <= 14400) {
+    nrfBaudRate = UARTE_BAUDRATE_BAUDRATE_Baud14400;
+  } else if (baudrate <= 19200) {
+    nrfBaudRate = UARTE_BAUDRATE_BAUDRATE_Baud19200;
+  } else if (baudrate <= 28800) {
+    nrfBaudRate = UARTE_BAUDRATE_BAUDRATE_Baud28800;
+  } else if (baudrate <= 38400) {
+    nrfBaudRate = UARTE_BAUDRATE_BAUDRATE_Baud38400;
+  } else if (baudrate <= 57600) {
+    nrfBaudRate = UARTE_BAUDRATE_BAUDRATE_Baud57600;
+  } else if (baudrate <= 76800) {
+    nrfBaudRate = UARTE_BAUDRATE_BAUDRATE_Baud76800;
+  } else if (baudrate <= 115200) {
+    nrfBaudRate = UARTE_BAUDRATE_BAUDRATE_Baud115200;
+  } else if (baudrate <= 230400) {
+    nrfBaudRate = UARTE_BAUDRATE_BAUDRATE_Baud230400;
+  } else if (baudrate <= 250000) {
+    nrfBaudRate = UARTE_BAUDRATE_BAUDRATE_Baud250000;
+  } else if (baudrate <= 460800) {
+    nrfBaudRate = UARTE_BAUDRATE_BAUDRATE_Baud460800;
+  } else if (baudrate <= 921600) {
+    nrfBaudRate = UARTE_BAUDRATE_BAUDRATE_Baud921600;
+  } else {
+    nrfBaudRate = UARTE_BAUDRATE_BAUDRATE_Baud1M;
+  }
+
+
+  return nrfBaudRate;
 }
 
 bool uartIsEnable(uint8_t channel)
@@ -169,20 +211,9 @@ uint32_t uartAvailable(uint8_t channel)
   uart_t *p_drv_uart = &uart_tbl[channel];
 
 
-  if (p_drv_uart->hw.dma_enable == true)
-  {
-    p_drv_uart->hw.rx_buf.ptr_in = p_drv_uart->hw.rx_buf.length - p_drv_uart->hw.hdma_rx.Instance->CNDTR;
-    length = (   p_drv_uart->hw.rx_buf.length
-               + p_drv_uart->hw.rx_buf.ptr_in
-               - p_drv_uart->hw.rx_buf.ptr_out ) % p_drv_uart->hw.rx_buf.length;
-
-  }
-  else
-  {
-    length = (   p_drv_uart->hw.rx_buf.length
-               + p_drv_uart->hw.rx_buf.ptr_in
-               - p_drv_uart->hw.rx_buf.ptr_out ) % p_drv_uart->hw.rx_buf.length;
-  }
+  length = (   p_drv_uart->hw.rx_buf.length
+             + p_drv_uart->hw.rx_buf.ptr_in
+             - p_drv_uart->hw.rx_buf.ptr_out ) % p_drv_uart->hw.rx_buf.length;
 
   return length;
 }
@@ -210,16 +241,21 @@ int32_t uartWrite(uint8_t channel, uint8_t *p_data, uint32_t length)
 {
   int32_t  ret = 0;
   uart_t *p_drv_uart = &uart_tbl[channel];
-
+  uint32_t i;
 
   if (uartIsEnable(channel) == false ) return 0;
 
 
-  if (HAL_UART_Transmit(&p_drv_uart->hw.h_uart, (uint8_t*)p_data, length, 100) == HAL_OK)
+  for (i=0; i<length; i++)
   {
-    ret = length;
+    p_drv_uart->hw.h_uart->TXD = p_data[i];
+
+    while(!p_drv_uart->hw.h_uart->EVENTS_TXDRDY);
+
+    p_drv_uart->hw.h_uart->EVENTS_TXDRDY = 0x0UL;
   }
 
+  ret = length;
 
   return ret;
 }
@@ -295,170 +331,29 @@ int32_t uartPrint(uint8_t channel, uint8_t *p_str)
   return index;
 }
 
-void uartStartRx(uint8_t channel)
-{
-  uart_t *p_drv_uart = &uart_tbl[channel];
 
-
-  if(p_drv_uart->hw.dma_enable == true)
-  {
-    HAL_UART_Receive_DMA(&p_drv_uart->hw.h_uart, (uint8_t *)p_drv_uart->hw.rx_buf.p_buf, p_drv_uart->hw.rx_buf.length);
-  }
-  else
-  {
-    //
-  }
-
-}
-
-void uartErrHandler(uint8_t channel)
-{
-  uart_t *p_drv_uart = &uart_tbl[channel];
-
-
-  if(p_drv_uart->hw.dma_enable == false)
-  {
-      uartStartRx(channel);
-  }
-}
-
-uint8_t uartGetIndex(UART_HandleTypeDef *UartHandle)
-{
-  uint32_t i;
-  uint8_t  ret = 0;
-
-  for(i=0; i<_HW_DEF_UART_CH_MAX; i++)
-  {
-    if (UartHandle->Instance == uart_tbl[i].hw.h_uart_inst)
-    {
-      ret = i;
-    }
-  }
-
-  return ret;
-}
 
 
 //--------------------------------------- Hardware Functions
 //
-void USART2_IRQHandler(void)
+void UARTE0_UART0_IRQHandler()
 {
-  HAL_UART_IRQHandler(&uart_tbl[_DEF_UART2].hw.h_uart);
-}
+  uint8_t ch;
+  uint32_t index;
 
 
-void HAL_UART_TxCpltCallback(UART_HandleTypeDef *UartHandle)
-{
-}
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle)
-{
-}
-
-void HAL_UART_ErrorCallback(UART_HandleTypeDef *UartHandle)
-{
-  uartErrHandler(uartGetIndex(UartHandle));
-}
-
-
-void HAL_UART_MspInit(UART_HandleTypeDef *huart)
-{
-  GPIO_InitTypeDef  GPIO_InitStruct;
-  RCC_PeriphCLKInitTypeDef  RCC_PeriphCLKInitStruct;
-  uart_t *p_drv_uart;
-  uint8_t channel = uartGetIndex(huart);
-
-
-  p_drv_uart = &uart_tbl[channel];
-
-
-  if (huart->Instance == USART2)
+  if (uart_tbl[_DEF_UART1].hw.h_uart->EVENTS_RXDRDY)
   {
-    RCC_PeriphCLKInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART2;
-    RCC_PeriphCLKInitStruct.Usart2ClockSelection = RCC_USART2CLKSOURCE_SYSCLK;
-    HAL_RCCEx_PeriphCLKConfig(&RCC_PeriphCLKInitStruct);
+    ch = (uint8_t)uart_tbl[_DEF_UART1].hw.h_uart->RXD;
 
+    index = uart_tbl[_DEF_UART1].hw.rx_buf.ptr_in;
 
-    __HAL_RCC_USART2_CLK_ENABLE();
+    uart_tbl[_DEF_UART1].hw.rx_buf.p_buf[index] = ch;
+    uart_tbl[_DEF_UART1].hw.rx_buf.ptr_in = (uart_tbl[_DEF_UART1].hw.rx_buf.ptr_in + 1) % uart_tbl[_DEF_UART1].hw.rx_buf.length;
 
-    /* UART TX GPIO pin configuration  */
-    GPIO_InitStruct.Pin       = GPIO_PIN_2;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_PULLUP;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
-
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-    /* UART RX GPIO pin configuration  */
-    GPIO_InitStruct.Pin       = GPIO_PIN_15;
-    GPIO_InitStruct.Alternate = GPIO_AF3_USART2;
-
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-
-
-    // DMA Setup
-    /* Configure the DMA handler for reception process */
-    __HAL_RCC_DMA1_CLK_ENABLE();
-
-
-    p_drv_uart->hw.hdma_rx.Instance                 = DMA1_Channel6;
-    p_drv_uart->hw.hdma_rx.Init.Direction           = DMA_PERIPH_TO_MEMORY;
-    p_drv_uart->hw.hdma_rx.Init.PeriphInc           = DMA_PINC_DISABLE;
-    p_drv_uart->hw.hdma_rx.Init.MemInc              = DMA_MINC_ENABLE;
-    p_drv_uart->hw.hdma_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-    p_drv_uart->hw.hdma_rx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
-    p_drv_uart->hw.hdma_rx.Init.Mode                = DMA_CIRCULAR;
-    p_drv_uart->hw.hdma_rx.Init.Priority            = DMA_PRIORITY_HIGH;
-    p_drv_uart->hw.hdma_rx.Init.Request             = DMA_REQUEST_2;
-
-    HAL_DMA_Init(&p_drv_uart->hw.hdma_rx);
-
-    /* Associate the initialized DMA handle to the the UART handle */
-    __HAL_LINKDMA(huart, hdmarx, p_drv_uart->hw.hdma_rx);
-
-
-
-    /* Peripheral interrupt init */
-    HAL_NVIC_SetPriority(USART2_IRQn, 10, 1);
-    HAL_NVIC_EnableIRQ(USART2_IRQn);
+    uart_tbl[_DEF_UART1].hw.h_uart->EVENTS_RXDRDY = 0x0UL;
   }
 }
-
-void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
-{
-
-  if(huart->Instance==USART2)
-  {
-    /*##-1- Reset peripherals ##################################################*/
-    __HAL_RCC_USART2_FORCE_RESET();
-    __HAL_RCC_USART2_RELEASE_RESET();
-
-    /*##-2- Disable peripherals and GPIO Clocks #################################*/
-    /* Configure USARTx Tx as alternate function  */
-    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_2);
-    /* Configure USARTx Rx as alternate function  */
-    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_15);
-
-    /*##-3- Disable the DMA #####################################################*/
-    /* De-Initialize the DMA channel associated to reception process */
-    if(huart->hdmarx != 0)
-    {
-      HAL_DMA_DeInit(huart->hdmarx);
-    }
-    /* De-Initialize the DMA channel associated to transmission process */
-    if(huart->hdmatx != 0)
-    {
-      HAL_DMA_DeInit(huart->hdmatx);
-    }
-
-    HAL_NVIC_DisableIRQ(DMA1_Channel6_IRQn);
-  }
-}
-
-
-
 
 
 

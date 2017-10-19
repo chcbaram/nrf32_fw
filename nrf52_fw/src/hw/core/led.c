@@ -39,7 +39,7 @@ void ledInit(void)
   }
 
 
-  //cmdifAdd("led", ledCmdif);
+  cmdifAdd("led", ledCmdif);
 }
 
 void ledOn(uint8_t ch)
@@ -66,7 +66,6 @@ void ledToggle(uint8_t ch)
 
 //-- ledCmdif
 //
-/*
 int ledCmdif(int argc, char **argv)
 {
   bool ret = true;
@@ -115,4 +114,3 @@ int ledCmdif(int argc, char **argv)
 
   return 0;
 }
-*/

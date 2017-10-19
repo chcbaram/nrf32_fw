@@ -16,8 +16,6 @@
 #include <stdint.h>
 
 
-#define _USE_HW_LCD
-#define _USE_HW_ST7735
 
 
 
@@ -25,10 +23,10 @@
 
 
 
-#define _HW_DEF_UART_CH_MAX               2
+#define _HW_DEF_UART_CH_MAX               1
 #define _HW_DEF_SW_TIMER_MAX              8
 #define _HW_DEF_CMDIF_LIST_MAX            16
-#define _HW_DEF_TIMER_CH_MAX              1
+#define _HW_DEF_TIMER_CH_MAX              2
 
 
 

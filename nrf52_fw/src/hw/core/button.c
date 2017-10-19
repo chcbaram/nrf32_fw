@@ -6,12 +6,13 @@
  */
 #include "hw.h"
 #include "button.h"
-
+#include "nrf_gpio.h"
 
 
 typedef struct
 {
   uint16_t      pin_number;
+  uint8_t       on_state;
 } button_port_t;
 
 typedef struct
@@ -21,11 +22,16 @@ typedef struct
   uint16_t    pressed_cnt;
   uint32_t    pressed_start_time;
   uint32_t    pressed_end_time;
+
+  uint32_t    released_start_time;
+  uint32_t    released_end_time;
+
 } button_t;
 
 
 static button_port_t button_port_tbl[BUTTON_CH_MAX] =
 {
+  {20, 0}
 };
 
 
@@ -40,11 +46,11 @@ int buttonCmdif(int argc, char **argv);
 void button_isr(void *arg)
 {
   uint8_t i;
-
+  uint8_t ret;
 
   for (i=0; i<BUTTON_CH_MAX; i++)
   {
-    //ret = HAL_GPIO_ReadPin(button_port_tbl[i].port, button_port_tbl[i].pin_number);
+    ret = nrf_gpio_pin_read(button_port_tbl[i].pin_number);
 
     if (ret == button_port_tbl[i].on_state)
     {
@@ -58,10 +64,17 @@ void button_isr(void *arg)
       button_tbl[i].pressed_cnt++;
 
       button_tbl[i].pressed_end_time = millis();
+      button_tbl[i].released_start_time = millis();
+      button_tbl[i].released_end_time   = millis();
     }
     else
     {
       button_tbl[i].pressed       = 0;
+
+      if (button_tbl[i].pressed_event)
+      {
+        button_tbl[i].released_end_time = millis();
+      }
     }
   }
 }
@@ -74,10 +87,13 @@ bool buttonInit(void)
   uint32_t i;
 
 
+
   for (i=0; i<BUTTON_CH_MAX; i++)
   {
     button_tbl[i].pressed_cnt = 0;
     button_tbl[i].pressed     = 0;
+
+    nrf_gpio_cfg_input(button_port_tbl[i].pin_number,NRF_GPIO_PIN_PULLUP);
   }
 
 
@@ -130,6 +146,18 @@ uint32_t buttonGetPressedTime(uint8_t ch)
   return ret;
 }
 
+uint32_t buttonGetReleasedTime(uint8_t ch)
+{
+  volatile uint32_t ret;
+
+
+  if (ch >= BUTTON_CH_MAX) return 0;
+
+
+  ret = button_tbl[ch].released_end_time - button_tbl[ch].released_start_time;
+
+  return ret;
+}
 
 //-- buttonCmdif
 //
@@ -149,10 +177,11 @@ int buttonCmdif(int argc, char **argv)
       {
         ledToggle(number);
         delay(200);
-        cmdifPrintf("button pressed : %d, event : %d, time %d\n",
+        cmdifPrintf("button pressed : %d, event : %d, time %d, %d\n",
                     buttonGetPressed(number),
                     buttonGetPressedEvent(number),
-                    buttonGetPressedTime(number)
+                    buttonGetPressedTime(number),
+                    buttonGetReleasedTime(number)
                     );
       }
     }

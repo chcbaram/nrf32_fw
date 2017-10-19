@@ -21,15 +21,13 @@
 
 
 
-#include "core/micros.h"
-#include "core/millis.h"
 #include "core/delay.h"
 #include "core/led.h"
-//#include "core/uart.h"
-//#include "core/hwtimer.h"
+#include "core/uart.h"
+#include "core/hwtimer.h"
 #include "core/swtimer.h"
-//#include "core/button.h"
-//#include "core/flash.h"
+#include "core/button.h"
+#include "core/flash.h"
 //#include "core/spi.h"
 //#include "lcd/lcd.h"
 //#include "core/dac.h"

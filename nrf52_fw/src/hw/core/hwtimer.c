@@ -11,18 +11,22 @@
 #include <stdbool.h>
 #include "hw.h"
 #include "hwtimer.h"
+#include "timer/nrf_drv_timer.h"
 
 
+
+const nrf_drv_timer_t TIMER_1 = NRF_DRV_TIMER_INSTANCE(0);
+const nrf_drv_timer_t TIMER_2 = NRF_DRV_TIMER_INSTANCE(1);
+
+nrf_drv_timer_config_t timer_cfg_1 = NRF_DRV_TIMER_DEFAULT_CONFIG;
+nrf_drv_timer_config_t timer_cfg_2 = NRF_DRV_TIMER_DEFAULT_CONFIG;
 
 typedef struct
 {
-  TIM_HandleTypeDef hTIM;
+  nrf_drv_timer_t        *p_timer;
+  nrf_drv_timer_config_t *p_timer_cfg;
   uint8_t  enable;
   uint32_t freq;
-  uint32_t prescaler_value;
-  uint32_t prescaler_value_1M;
-  uint32_t prescaler_div;
-  uint32_t period;
   voidFuncPtr handler;
 } hwtimer_t;
 
@@ -40,6 +44,8 @@ static hwtimer_t timer_tbl[_HW_DEF_TIMER_CH_MAX];
 
 //-- Internal Functions
 //
+void timer_1_event_handler(nrf_timer_event_t event_type, void* p_context);
+void timer_2_event_handler(nrf_timer_event_t event_type, void* p_context);
 
 
 //-- External Functions
@@ -50,37 +56,23 @@ static hwtimer_t timer_tbl[_HW_DEF_TIMER_CH_MAX];
 
 bool hwtimerInit(void)
 {
-  uint8_t tim_ch;
   uint8_t i;
 
 
   //-- TIM1
   //
-  tim_ch = _DEF_TIMER1;
-  timer_tbl[tim_ch].hTIM.Instance               = TIM1;
-  timer_tbl[tim_ch].prescaler_value             = (uint32_t)((SystemCoreClock / 1) / 10000  ) - 1; // 0.01Mhz
-  timer_tbl[tim_ch].prescaler_value_1M          = (uint32_t)((SystemCoreClock / 1) / 1000000) - 1; // 1.00Mhz
-  timer_tbl[tim_ch].prescaler_div               = 100;
-  timer_tbl[tim_ch].hTIM.Init.Period            = 10000 - 1;
-  timer_tbl[tim_ch].hTIM.Init.Prescaler         = timer_tbl[tim_ch].prescaler_value;
-  timer_tbl[tim_ch].hTIM.Init.ClockDivision     = 0;
-  timer_tbl[tim_ch].hTIM.Init.CounterMode       = TIM_COUNTERMODE_UP;
-  timer_tbl[tim_ch].hTIM.Init.RepetitionCounter = 0;
+  timer_tbl[_DEF_TIMER1].p_timer     = (nrf_drv_timer_t *)&TIMER_1;
+  timer_tbl[_DEF_TIMER1].p_timer_cfg = &timer_cfg_1;
 
-/*
-  //-- TIM6
+  nrf_drv_timer_init(timer_tbl[_DEF_TIMER1].p_timer, timer_tbl[_DEF_TIMER1].p_timer_cfg, timer_1_event_handler);
+
+
+  //-- TIM2
   //
-  tim_ch = _DEF_TIMER2;
-  timer_tbl[tim_ch].hTIM.Instance               = TIM6;
-  timer_tbl[tim_ch].prescaler_value             = (uint32_t)((SystemCoreClock / 1) / 10000  ) - 1; // 0.01Mhz
-  timer_tbl[tim_ch].prescaler_value_1M          = (uint32_t)((SystemCoreClock / 1) / 1000000) - 1; // 1.00Mhz
-  timer_tbl[tim_ch].prescaler_div               = 100;
-  timer_tbl[tim_ch].hTIM.Init.Period            = 10000 - 1;
-  timer_tbl[tim_ch].hTIM.Init.Prescaler         = timer_tbl[tim_ch].prescaler_value;
-  timer_tbl[tim_ch].hTIM.Init.ClockDivision     = 0;
-  timer_tbl[tim_ch].hTIM.Init.CounterMode       = TIM_COUNTERMODE_UP;
-  timer_tbl[tim_ch].hTIM.Init.RepetitionCounter = 0;
-*/
+  timer_tbl[_DEF_TIMER2].p_timer     = (nrf_drv_timer_t *)&TIMER_2;
+  timer_tbl[_DEF_TIMER2].p_timer_cfg = &timer_cfg_2;
+
+  nrf_drv_timer_init(timer_tbl[_DEF_TIMER2].p_timer, timer_tbl[_DEF_TIMER2].p_timer_cfg, timer_2_event_handler);
 
 
   for( i=0; i<_HW_DEF_TIMER_CH_MAX; i++ )
@@ -96,27 +88,21 @@ void hwtimerStop(uint8_t channel)
 {
   if( channel >= _HW_DEF_TIMER_CH_MAX ) return;
 
+  nrf_drv_timer_disable(timer_tbl[channel].p_timer);
+
   timer_tbl[channel].enable = 0;
-  HAL_TIM_Base_DeInit(&timer_tbl[channel].hTIM);
 }
 
 void hwtimerSetPeriod(uint8_t channel, uint32_t period_us)
 {
   if( channel >= _HW_DEF_TIMER_CH_MAX ) return;
 
-  if( period_us > 0xFFFF )
-  {
-    timer_tbl[channel].hTIM.Init.Prescaler = timer_tbl[channel].prescaler_value;
-    timer_tbl[channel].hTIM.Init.Period    = (period_us/timer_tbl[channel].prescaler_div) - 1;
-  }
-  else
-  {
-    if( period_us > 0 )
-    {
-      timer_tbl[channel].hTIM.Init.Prescaler = timer_tbl[channel].prescaler_value_1M;
-      timer_tbl[channel].hTIM.Init.Period    = period_us - 1;
-    }
-  }
+  uint32_t time_ticks;
+
+  if( channel >= _HW_DEF_TIMER_CH_MAX ) return;
+
+  time_ticks = nrf_drv_timer_us_to_ticks(timer_tbl[channel].p_timer, period_us);
+  nrf_drv_timer_extended_compare(timer_tbl[channel].p_timer, NRF_TIMER_CC_CHANNEL0, time_ticks, NRF_TIMER_SHORT_COMPARE0_CLEAR_MASK, true);
 }
 
 void hwtimerAttachInterrupt(uint8_t channel, voidFuncPtr handler)
@@ -142,8 +128,7 @@ void hwtimerStart(uint8_t channel)
 {
   if( channel >= _HW_DEF_TIMER_CH_MAX ) return;
 
-  HAL_TIM_Base_Init(&timer_tbl[channel].hTIM);
-  HAL_TIM_Base_Start_IT(&timer_tbl[channel].hTIM);
+  nrf_drv_timer_enable(timer_tbl[channel].p_timer);
 
   timer_tbl[channel].enable = 1;
 }
@@ -153,62 +138,39 @@ void hwtimerStart(uint8_t channel)
 
 
 
-
-
-
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+void timer_1_event_handler(nrf_timer_event_t event_type, void* p_context)
 {
-  uint8_t i;
 
-
-  for (i=0; i<_HW_DEF_TIMER_CH_MAX; i++)
+  switch (event_type)
   {
-    if (htim->Instance == timer_tbl[i].hTIM.Instance)
-    {
-      if (timer_tbl[i].handler != NULL)
+    case NRF_TIMER_EVENT_COMPARE0:
+      if (timer_tbl[_DEF_TIMER1].handler != NULL)
       {
-        (*timer_tbl[i].handler)();
+         (*timer_tbl[_DEF_TIMER1].handler)();
       }
-    }
+      break;
+
+    default:
+      //Do nothing.
+      break;
   }
 }
 
-
-void TIM1_UP_TIM16_IRQHandler(void)
+void timer_2_event_handler(nrf_timer_event_t event_type, void* p_context)
 {
-  HAL_TIM_IRQHandler(&timer_tbl[_DEF_TIMER1].hTIM);
-}
-void TIM6_DAC_IRQHandler(void)
-{
-  HAL_TIM_IRQHandler(&timer_tbl[_DEF_TIMER2].hTIM);
-}
 
+  switch (event_type)
+  {
+    case NRF_TIMER_EVENT_COMPARE0:
+      if (timer_tbl[_DEF_TIMER2].handler != NULL)
+      {
+         (*timer_tbl[_DEF_TIMER2].handler)();
+      }
+      break;
 
-void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim)
-{
-  if( htim->Instance == TIM1 )
-  {
-    __HAL_RCC_TIM1_CLK_ENABLE();
-
-    HAL_NVIC_SetPriority(TIM1_UP_TIM16_IRQn, 10, 0);
-    HAL_NVIC_EnableIRQ(TIM1_UP_TIM16_IRQn);
-  }
-  if( htim->Instance == TIM6 )
-  {
-    __HAL_RCC_TIM6_CLK_ENABLE();
-  }
-}
-
-void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef *htim)
-{
-  if( htim->Instance == TIM1 )
-  {
-    HAL_NVIC_DisableIRQ(TIM1_UP_TIM16_IRQn);
-  }
-  if( htim->Instance == TIM6 )
-  {
-    __HAL_RCC_TIM6_FORCE_RESET();
-    __HAL_RCC_TIM6_RELEASE_RESET();
+    default:
+      //Do nothing.
+      break;
   }
 }
 

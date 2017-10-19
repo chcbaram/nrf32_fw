@@ -20,7 +20,7 @@
 
 
 
-#define BUTTON_CH_MAX      2
+#define BUTTON_CH_MAX      1
 
 
 

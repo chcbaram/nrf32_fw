@@ -18,21 +18,9 @@ void mainInit(void);
 
 int main(void)
 {
-  uint32_t t_time;
-  uint32_t cnt = 0;
-
-
   mainInit();
 
-
-
-  while(1)
-  {
-    ledToggle(0);
-    delay(500);
-    ledToggle(0);
-    delay(500);
-  }
+  apMain();
 
   return 0;
 }
