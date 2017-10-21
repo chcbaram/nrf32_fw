@@ -15,7 +15,7 @@
 <stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.gdbServerExecutable" value="${openocd_path}/${openocd_executable}"/>
 <intAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.gdbServerGdbPortNumber" value="3333"/>
 <stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.gdbServerLog" value=""/>
-<stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.gdbServerOther" value="-f interface/stlink-v2.cfg&#13;&#10;-f target/nrf52.cfg&#13;&#10;-c init&#13;&#10;-c &quot;nrf51 mass_erase&quot; &#13;&#10;-c &quot;flash write_image erase src/lib/cpu/nRF5_SDK_14.0.0_3bcc1f7/components/softdevice/s132/hex/s132_nrf52_5.0.0_softdevice.hex&quot; &#13;&#10;-c &quot;reset run&quot; -c shutdown"/>
+<stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.gdbServerOther" value="-f interface/stlink-v2.cfg&#13;&#10;-f target/nrf52.cfg&#13;&#10;-c init&#13;&#10;-c halt&#13;&#10;-c &quot;nrf51 mass_erase&quot; &#13;&#10;-c &quot;flash write_image erase src/lib/cpu/nRF5_SDK_14.0.0_3bcc1f7/components/softdevice/s132/hex/s132_nrf52_5.0.0_softdevice.hex&quot; &#13;&#10;-c &quot;reset run&quot; -c shutdown"/>
 <intAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.gdbServerTelnetPortNumber" value="4444"/>
 <stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.otherInitCommands" value="monitor flash banks"/>
 <stringAttribute key="ilg.gnumcueclipse.debug.gdbjtag.openocd.otherRunCommands" value=""/>
