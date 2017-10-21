@@ -1,3 +1,3 @@
 eclipse.preferences.version=1
-executable.name=openocd
-install.folder=/usr/local/bin/
+executable.name=openocd.exe
+install.folder=D\:\\tools\\openocd\\openocd-win32-0.10.0-dev-nrf5\\openocd\\bin

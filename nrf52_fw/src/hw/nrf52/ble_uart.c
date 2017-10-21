@@ -102,6 +102,7 @@ bool bleUartInit(void)
   err_code = ble_advertising_start(&m_advertising, BLE_ADV_MODE_FAST);
   APP_ERROR_CHECK(err_code);
 
+
   return true;
 }
 
@@ -427,16 +428,20 @@ static void services_init(void)
  */
 static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
 {
-  //uint32_t err_code;
+  uint32_t err_code;
 
   switch (ble_adv_evt)
   {
     case BLE_ADV_EVT_FAST:
       //err_code = bsp_indication_set(BSP_INDICATE_ADVERTISING);
       //APP_ERROR_CHECK(err_code);
+      //cmdifPrintf("BLE_ADV_EVT_FAST\n");
       break;
     case BLE_ADV_EVT_IDLE:
       //sleep_mode_enter();
+      //cmdifPrintf("BLE_ADV_EVT_IDLE\n");
+      err_code = ble_advertising_start(&m_advertising, BLE_ADV_MODE_FAST);
+      APP_ERROR_CHECK(err_code);
       break;
     default:
       break;

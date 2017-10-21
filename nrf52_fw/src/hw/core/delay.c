@@ -43,6 +43,16 @@ void delayInit(void)
   NRF_RTC1->EVTENSET = RTC_EVTEN_OVRFLW_Msk;
   NRF_RTC1->TASKS_START = 1;
 #endif
+
+  NVIC_SetPriority(RTC1_IRQn, 15);
+  NVIC_ClearPendingIRQ(RTC1_IRQn);
+  NVIC_EnableIRQ(RTC1_IRQn);
+
+
+  NRF_RTC1->PRESCALER = 0;
+  NRF_RTC1->INTENSET = RTC_INTENSET_OVRFLW_Msk;
+  NRF_RTC1->EVTENSET = RTC_EVTEN_OVRFLW_Msk;
+  NRF_RTC1->TASKS_START = 1;
 }
 
 void delay(uint32_t ms)
@@ -91,7 +101,7 @@ void delay_ms(uint32_t ms)
   nrf_drv_systick_delay_ms(ms);
 }
 
-#if APP_TIMER_ENABLED == 0
+//#if APP_TIMER_ENABLED == 0
 void RTC1_IRQHandler(void)
 {
   NRF_RTC1->EVENTS_OVRFLW = 0;
@@ -103,4 +113,4 @@ void RTC1_IRQHandler(void)
 
   overflows = (overflows + 1) & 0xff;
 }
-#endif
+//#endif

@@ -898,9 +898,7 @@ static uint32_t timer_stop_op_schedule(timer_node_t * p_node,
  *
  * @details Checks for timeouts, and executes timeout handlers for expired timers.
  */
-#if _USE_DELAY_RTC1 == 1
-extern uint32_t overflows;
-#endif
+#if _USE_DELAY_RTC1 == 0
 void RTC1_IRQHandler(void)
 {
     // Clear all events (also unexpected ones)
@@ -913,11 +911,8 @@ void RTC1_IRQHandler(void)
 
     // Check for expired timers
     timer_timeouts_check();
-#if _USE_DELAY_RTC1 == 1
-    overflows = (overflows + 1) & 0xff;;
-#endif
 }
-
+#endif
 
 /**@brief Function for handling the SWI interrupt.
  *

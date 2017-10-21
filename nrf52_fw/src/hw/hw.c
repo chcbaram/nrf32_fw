@@ -15,7 +15,6 @@
 void hwInit(void)
 {
   cmdifInit();
-  delayInit();
   swtimerInit();
   ledInit();
   uartInit();
@@ -24,6 +23,7 @@ void hwInit(void)
 
   bleInit();
 
+  delayInit();
   hwtimerInit();
 
   // 1ms for swtimer
