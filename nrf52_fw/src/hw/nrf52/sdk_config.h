@@ -65,6 +65,261 @@
 // </h>
 //==========================================================
 
+// </h>
+//==========================================================
+
+// <h> nRF_BLE
+
+//==========================================================
+// <q> BLE_ADVERTISING_ENABLED  - ble_advertising - Advertising module
+
+
+#ifndef BLE_ADVERTISING_ENABLED
+#define BLE_ADVERTISING_ENABLED 1
+#endif
+
+// <q> BLE_DB_DISCOVERY_ENABLED  - ble_db_discovery - Database discovery module
+
+
+#ifndef BLE_DB_DISCOVERY_ENABLED
+#define BLE_DB_DISCOVERY_ENABLED 1
+#endif
+
+// <q> BLE_DTM_ENABLED  - ble_dtm - Module for testing RF/PHY using DTM commands
+
+
+#ifndef BLE_DTM_ENABLED
+#define BLE_DTM_ENABLED 0
+#endif
+
+// <q> BLE_RACP_ENABLED  - ble_racp - Record Access Control Point library
+
+
+#ifndef BLE_RACP_ENABLED
+#define BLE_RACP_ENABLED 0
+#endif
+
+// <q> NRF_BLE_GATT_ENABLED  - nrf_ble_gatt - GATT module
+
+
+#ifndef NRF_BLE_GATT_ENABLED
+#define NRF_BLE_GATT_ENABLED 1
+#endif
+
+// <q> NRF_BLE_QWR_ENABLED  - nrf_ble_qwr - Queued writes support module (prepare/execute write)
+
+
+#ifndef NRF_BLE_QWR_ENABLED
+#define NRF_BLE_QWR_ENABLED 0
+#endif
+
+// <e> PEER_MANAGER_ENABLED - peer_manager - Peer Manager
+//==========================================================
+#ifndef PEER_MANAGER_ENABLED
+#define PEER_MANAGER_ENABLED 0
+#endif
+// <o> PM_MAX_REGISTRANTS
+// <i> Number of event handlers that can be registered.
+
+#ifndef PM_MAX_REGISTRANTS
+#define PM_MAX_REGISTRANTS 3
+#endif
+
+// <o> PM_FLASH_BUFFERS
+// <i> Number of internal buffers for flash operations.
+// <i> Decrease this value to lower RAM usage.
+
+#ifndef PM_FLASH_BUFFERS
+#define PM_FLASH_BUFFERS 8
+#endif
+
+// </e>
+
+// </h>
+//==========================================================
+
+// <h> nRF_BLE_Services
+
+//==========================================================
+// <q> BLE_ANCS_C_ENABLED  - ble_ancs_c - Apple Notification Service Client
+
+
+#ifndef BLE_ANCS_C_ENABLED
+#define BLE_ANCS_C_ENABLED 0
+#endif
+
+// <q> BLE_ANS_C_ENABLED  - ble_ans_c - Alert Notification Service Client
+
+
+#ifndef BLE_ANS_C_ENABLED
+#define BLE_ANS_C_ENABLED 0
+#endif
+
+// <q> BLE_BAS_C_ENABLED  - ble_bas_c - Battery Service Client
+
+
+#ifndef BLE_BAS_C_ENABLED
+#define BLE_BAS_C_ENABLED 0
+#endif
+
+// <q> BLE_BAS_ENABLED  - ble_bas - Battery Service
+
+
+#ifndef BLE_BAS_ENABLED
+#define BLE_BAS_ENABLED 0
+#endif
+
+// <q> BLE_CSCS_ENABLED  - ble_cscs - Cycling Speed and Cadence Service
+
+
+#ifndef BLE_CSCS_ENABLED
+#define BLE_CSCS_ENABLED 0
+#endif
+
+// <q> BLE_CTS_C_ENABLED  - ble_cts_c - Current Time Service Client
+
+
+#ifndef BLE_CTS_C_ENABLED
+#define BLE_CTS_C_ENABLED 0
+#endif
+
+// <q> BLE_DIS_ENABLED  - ble_dis - Device Information Service
+
+
+#ifndef BLE_DIS_ENABLED
+#define BLE_DIS_ENABLED 0
+#endif
+
+// <q> BLE_GLS_ENABLED  - ble_gls - Glucose Service
+
+
+#ifndef BLE_GLS_ENABLED
+#define BLE_GLS_ENABLED 0
+#endif
+
+// <q> BLE_HIDS_ENABLED  - ble_hids - Human Interface Device Service
+
+
+#ifndef BLE_HIDS_ENABLED
+#define BLE_HIDS_ENABLED 0
+#endif
+
+// <q> BLE_HRS_C_ENABLED  - ble_hrs_c - Heart Rate Service Client
+
+
+#ifndef BLE_HRS_C_ENABLED
+#define BLE_HRS_C_ENABLED 0
+#endif
+
+// <q> BLE_HRS_ENABLED  - ble_hrs - Heart Rate Service
+
+
+#ifndef BLE_HRS_ENABLED
+#define BLE_HRS_ENABLED 0
+#endif
+
+// <q> BLE_HTS_ENABLED  - ble_hts - Health Thermometer Service
+
+
+#ifndef BLE_HTS_ENABLED
+#define BLE_HTS_ENABLED 0
+#endif
+
+// <q> BLE_IAS_C_ENABLED  - ble_ias_c - Immediate Alert Service Client
+
+
+#ifndef BLE_IAS_C_ENABLED
+#define BLE_IAS_C_ENABLED 0
+#endif
+
+// <q> BLE_IAS_ENABLED  - ble_ias - Immediate Alert Service
+
+
+#ifndef BLE_IAS_ENABLED
+#define BLE_IAS_ENABLED 0
+#endif
+
+// <q> BLE_LBS_C_ENABLED  - ble_lbs_c - Nordic LED Button Service Client
+
+
+#ifndef BLE_LBS_C_ENABLED
+#define BLE_LBS_C_ENABLED 0
+#endif
+
+// <q> BLE_LBS_ENABLED  - ble_lbs - LED Button Service
+
+
+#ifndef BLE_LBS_ENABLED
+#define BLE_LBS_ENABLED 0
+#endif
+
+// <q> BLE_LLS_ENABLED  - ble_lls - Link Loss Service
+
+
+#ifndef BLE_LLS_ENABLED
+#define BLE_LLS_ENABLED 0
+#endif
+
+// <q> BLE_NUS_C_ENABLED  - ble_nus_c - Nordic UART Central Service
+
+
+#ifndef BLE_NUS_C_ENABLED
+#define BLE_NUS_C_ENABLED 0
+#endif
+
+// <q> BLE_NUS_ENABLED  - ble_nus - Nordic UART Service
+
+
+#ifndef BLE_NUS_ENABLED
+#define BLE_NUS_ENABLED 1
+#endif
+
+// <q> BLE_RSCS_C_ENABLED  - ble_rscs_c - Running Speed and Cadence Client
+
+
+#ifndef BLE_RSCS_C_ENABLED
+#define BLE_RSCS_C_ENABLED 0
+#endif
+
+// <q> BLE_RSCS_ENABLED  - ble_rscs - Running Speed and Cadence Service
+
+
+#ifndef BLE_RSCS_ENABLED
+#define BLE_RSCS_ENABLED 0
+#endif
+
+// <q> BLE_TPS_ENABLED  - ble_tps - TX Power Service
+
+
+#ifndef BLE_TPS_ENABLED
+#define BLE_TPS_ENABLED 0
+#endif
+
+// </h>
+//==========================================================
+
+// <h> nRF_DFU
+
+//==========================================================
+// <h> ble_dfu - Device Firmware Update
+
+//==========================================================
+// <q> BLE_DFU_ENABLED  - Enable DFU Service.
+
+
+#ifndef BLE_DFU_ENABLED
+#define BLE_DFU_ENABLED 0
+#endif
+
+// <q> NRF_DFU_BLE_BUTTONLESS_SUPPORTS_BONDS  - Buttonless DFU supports bonds.
+
+
+#ifndef NRF_DFU_BLE_BUTTONLESS_SUPPORTS_BONDS
+#define NRF_DFU_BLE_BUTTONLESS_SUPPORTS_BONDS 0
+#endif
+
+
+
 // <h> nRF_ANT
 
 //==========================================================
@@ -1182,37 +1437,12 @@
 
 // </e>
 
-// </h>
-//==========================================================
 
-// <h> nRF_BLE
-
-//==========================================================
-// <q> BLE_ADVERTISING_ENABLED  - ble_advertising - Advertising module
-
-
-#ifndef BLE_ADVERTISING_ENABLED
-#define BLE_ADVERTISING_ENABLED 0
-#endif
-
-// <q> BLE_DTM_ENABLED  - ble_dtm - Module for testing RF/PHY using DTM commands
-
-
-#ifndef BLE_DTM_ENABLED
-#define BLE_DTM_ENABLED 0
-#endif
-
-// <q> BLE_RACP_ENABLED  - ble_racp - Record Access Control Point library
-
-
-#ifndef BLE_RACP_ENABLED
-#define BLE_RACP_ENABLED 0
-#endif
 
 // <e> NRF_BLE_CONN_PARAMS_ENABLED - ble_conn_params - Initiating and executing a connection parameters negotiation procedure
 //==========================================================
 #ifndef NRF_BLE_CONN_PARAMS_ENABLED
-#define NRF_BLE_CONN_PARAMS_ENABLED 0
+#define NRF_BLE_CONN_PARAMS_ENABLED 1
 #endif
 // <o> NRF_BLE_CONN_PARAMS_MAX_SLAVE_LATENCY_DEVIATION - The largest acceptable deviation in slave latency.
 // <i> The largest deviation (+ or -) from the requested slave latency that will not be renegotiated.
@@ -3223,7 +3453,7 @@
 // <e> APP_TIMER_ENABLED - app_timer - Application timer functionality
 //==========================================================
 #ifndef APP_TIMER_ENABLED
-#define APP_TIMER_ENABLED 0
+#define APP_TIMER_ENABLED 1
 #endif
 // <o> APP_TIMER_CONFIG_RTC_FREQUENCY  - Configure RTC prescaler.
 
@@ -3881,7 +4111,7 @@
 // <e> NRF_FSTORAGE_ENABLED - nrf_fstorage - Flash abstraction library
 //==========================================================
 #ifndef NRF_FSTORAGE_ENABLED
-#define NRF_FSTORAGE_ENABLED 0
+#define NRF_FSTORAGE_ENABLED 1
 #endif
 // <h> nrf_fstorage_sd - Implementation using the SoftDevice.
 
@@ -4058,7 +4288,7 @@
 
 
 #ifndef NRF_SECTION_ITER_ENABLED
-#define NRF_SECTION_ITER_ENABLED 0
+#define NRF_SECTION_ITER_ENABLED 1
 #endif
 
 // <q> NRF_STRERROR_ENABLED  - nrf_strerror - Library for converting error code to string.
@@ -8171,7 +8401,7 @@
 // <e> NRF_SDH_BLE_ENABLED - nrf_sdh_ble - SoftDevice BLE event handler
 //==========================================================
 #ifndef NRF_SDH_BLE_ENABLED
-#define NRF_SDH_BLE_ENABLED 0
+#define NRF_SDH_BLE_ENABLED 1
 #endif
 // <h> BLE Stack configuration - Stack configuration parameters
 
@@ -8180,7 +8410,7 @@
 //==========================================================
 // <o> NRF_SDH_BLE_PERIPHERAL_LINK_COUNT - Maximum number of peripheral links.
 #ifndef NRF_SDH_BLE_PERIPHERAL_LINK_COUNT
-#define NRF_SDH_BLE_PERIPHERAL_LINK_COUNT 0
+#define NRF_SDH_BLE_PERIPHERAL_LINK_COUNT 1
 #endif
 
 // <o> NRF_SDH_BLE_CENTRAL_LINK_COUNT - Maximum number of central links.
@@ -8200,7 +8430,7 @@
 
 // <o> NRF_SDH_BLE_GATT_MAX_MTU_SIZE - Static maximum MTU size.
 #ifndef NRF_SDH_BLE_GATT_MAX_MTU_SIZE
-#define NRF_SDH_BLE_GATT_MAX_MTU_SIZE 23
+#define NRF_SDH_BLE_GATT_MAX_MTU_SIZE 247
 #endif
 
 // <o> NRF_SDH_BLE_GATTS_ATTR_TAB_SIZE - Attribute Table size in bytes. The size must be a multiple of 4.
@@ -8210,7 +8440,7 @@
 
 // <o> NRF_SDH_BLE_VS_UUID_COUNT - The number of vendor-specific UUIDs.
 #ifndef NRF_SDH_BLE_VS_UUID_COUNT
-#define NRF_SDH_BLE_VS_UUID_COUNT 0
+#define NRF_SDH_BLE_VS_UUID_COUNT 1
 #endif
 
 // <q> NRF_SDH_BLE_SERVICE_CHANGED  - Include the Service Changed characteristic in the Attribute Table.
@@ -8515,7 +8745,7 @@
 // <e> NRF_SDH_ENABLED - nrf_sdh - SoftDevice handler
 //==========================================================
 #ifndef NRF_SDH_ENABLED
-#define NRF_SDH_ENABLED 0
+#define NRF_SDH_ENABLED 1
 #endif
 // <h> Dispatch model
 

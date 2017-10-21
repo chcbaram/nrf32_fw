@@ -88,7 +88,7 @@ void delay_ms(uint32_t ms)
   nrf_drv_systick_delay_ms(ms);
 }
 
-
+/*
 void RTC1_IRQHandler(void)
 {
   NRF_RTC1->EVENTS_OVRFLW = 0;
@@ -100,3 +100,4 @@ void RTC1_IRQHandler(void)
 
   overflows = (overflows + 1) & 0xff;
 }
+*/

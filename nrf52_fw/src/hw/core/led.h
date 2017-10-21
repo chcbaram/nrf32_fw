@@ -20,7 +20,7 @@
 
 
 
-#define LED_CH_MAX      1
+#define LED_CH_MAX      2
 
 
 

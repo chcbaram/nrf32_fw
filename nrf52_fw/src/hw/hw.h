@@ -31,7 +31,7 @@
 //#include "core/spi.h"
 //#include "lcd/lcd.h"
 //#include "core/dac.h"
-
+#include "nrf52/ble.h"
 
 void hwInit(void);
 

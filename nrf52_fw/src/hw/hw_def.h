@@ -30,6 +30,8 @@
 
 
 
+#define BLE_LED                           1
+
 
 
 #define FLASH_FW_SIZE                     ((128)*1024)    // 128KB

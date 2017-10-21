@@ -11,13 +11,15 @@
 
 typedef struct
 {
-  uint16_t      pin_number;
+  uint16_t pin_number;
+  uint8_t  on_state;
 } led_port_t;
 
 
 led_port_t led_port_tbl[LED_CH_MAX] =
 {
-    {17}
+    {17, 1},
+    {19, 1}
 };
 
 
@@ -46,13 +48,13 @@ void ledOn(uint8_t ch)
 {
   if (ch >= LED_CH_MAX) return;
 
-  nrf_gpio_pin_write(led_port_tbl[ch].pin_number, 0);
+  nrf_gpio_pin_write(led_port_tbl[ch].pin_number, led_port_tbl[ch].on_state);
 }
 
 void ledOff(uint8_t ch)
 {
   if (ch >= LED_CH_MAX) return;
-  nrf_gpio_pin_write(led_port_tbl[ch].pin_number, 1);
+  nrf_gpio_pin_write(led_port_tbl[ch].pin_number, !led_port_tbl[ch].on_state);
 }
 
 void ledToggle(uint8_t ch)

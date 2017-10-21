@@ -16,9 +16,19 @@ void mainInit(void);
 
 
 
+
+
+
+
+
+
+
+
 int main(void)
 {
   mainInit();
+
+
 
   apMain();
 
@@ -27,7 +37,12 @@ int main(void)
 
 void mainInit(void)
 {
+
   bspInit();
   hwInit();
+
   apInit();
 }
+
+
+
