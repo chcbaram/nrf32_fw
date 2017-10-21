@@ -14,9 +14,10 @@
 #include "timer/nrf_drv_timer.h"
 
 
-
-const nrf_drv_timer_t TIMER_1 = NRF_DRV_TIMER_INSTANCE(0);
-const nrf_drv_timer_t TIMER_2 = NRF_DRV_TIMER_INSTANCE(1);
+//-- SoftDevice 사용시 TIMER0는 사용 못함
+//
+const nrf_drv_timer_t TIMER_1 = NRF_DRV_TIMER_INSTANCE(1);
+const nrf_drv_timer_t TIMER_2 = NRF_DRV_TIMER_INSTANCE(2);
 
 nrf_drv_timer_config_t timer_cfg_1 = NRF_DRV_TIMER_DEFAULT_CONFIG;
 nrf_drv_timer_config_t timer_cfg_2 = NRF_DRV_TIMER_DEFAULT_CONFIG;

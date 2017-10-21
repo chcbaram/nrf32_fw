@@ -14,7 +14,7 @@
 #include "nrf.h"
 #include "nrf52.h"
 #include "nrf_drv_systick.h"
-
+#include "sdk_config.h"
 
 
 #ifdef __cplusplus

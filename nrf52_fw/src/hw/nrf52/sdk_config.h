@@ -53,6 +53,8 @@
 #define TIMER0_ENABLED    1
 #define TIMER1_ENABLED    1
 
+#define _USE_DELAY_RTC1   1
+
 
 //==========================================================
 // <q> BSP_BTN_BLE_ENABLED  - bsp_btn_ble - Button Control for BLE

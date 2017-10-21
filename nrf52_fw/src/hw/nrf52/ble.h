@@ -26,8 +26,7 @@
 
 
 bool bleInit(void);
-
-
+bool bleIsConnected(void);
 
 #ifdef __cplusplus
 }

@@ -69,6 +69,7 @@ typedef struct
  void cmdifPutch(char data);
  uint8_t  cmdifGetch(void);
  uint32_t cmdifRxAvailable(void);
+ uint8_t  cmdifRxRead(void);
 
 
 #ifdef __cplusplus

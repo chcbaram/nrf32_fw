@@ -290,16 +290,16 @@ int32_t uartPrintf(uint8_t channel, const char *fmt, ...)
   int32_t ret = 0;
   va_list arg;
   va_start (arg, fmt);
-  int32_t len;
+  //int32_t len;
   static char print_buffer[255];
 
 
   if (uartIsEnable(channel) == false ) return 0;
 
-  len = vsnprintf(print_buffer, 255, fmt, arg);
+  vsnprintf(print_buffer, 255, fmt, arg);
   va_end (arg);
 
-  ret = uartWrite(channel, (uint8_t *)print_buffer, len);
+  ret = uartPrint(channel, (uint8_t *)print_buffer);
 
   return ret;
 }
@@ -312,6 +312,10 @@ int32_t uartPrint(uint8_t channel, uint8_t *p_str)
 
   while(1)
   {
+    if (p_str[index] == '\n')
+    {
+      uartPutch(channel, '\r');
+    }
     uartPutch(channel, p_str[index]);
 
     if (p_str[index] == 0)

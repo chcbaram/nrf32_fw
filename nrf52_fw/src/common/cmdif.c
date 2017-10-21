@@ -306,14 +306,14 @@ void cmdifPrintf(const char *fmt, ...)
 {
   va_list arg;
   va_start (arg, fmt);
-  int32_t len;
+  //int32_t len;
   static char print_buffer[255];
 
 
-  len = vsnprintf(print_buffer, 255, fmt, arg);
+  vsnprintf(print_buffer, 255, fmt, arg);
   va_end (arg);
 
-  uartWrite(cmdif_cmd.ch, (uint8_t *)print_buffer, len);
+  uartPrint(cmdif_cmd.ch, (uint8_t *)print_buffer);
 }
 
 void cmdifPutch(char data)
@@ -329,6 +329,11 @@ uint8_t cmdifGetch(void)
 uint32_t cmdifRxAvailable(void)
 {
   return uartAvailable(cmdif_cmd.ch);
+}
+
+uint8_t cmdifRxRead(void)
+{
+  return uartRead(cmdif_cmd.ch);
 }
 
 uint8_t cmdifReadByte(char *p_data)
@@ -484,6 +489,7 @@ int cmdifGetCmdString(char *s, int *count)
         }
         break;
 
+      case 0x7F : // BS (screen for linux)
       case 0x08 : // BS
         if (cnt > 0)
         {

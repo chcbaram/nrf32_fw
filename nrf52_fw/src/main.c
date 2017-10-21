@@ -14,16 +14,6 @@ void mainInit(void);
 
 
 
-
-
-
-
-
-
-
-
-
-
 int main(void)
 {
   mainInit();

@@ -17,6 +17,8 @@
 
 
 
+#define _HW_USE_SOFTDEVICE
+
 
 
 #define _HW_DEF_SWTIMER_CH                _DEF_TIMER1
